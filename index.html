@@ -11,33 +11,60 @@
         :root {
             font-family: 'Inter', sans-serif;
         }
+        /* Versteckt die Pfeile bei nummerischen Eingaben */
         .score-input {
-            appearance: textfield; /* Entfernt die Pfeile in Firefox */
+            appearance: textfield; 
         }
         .score-input::-webkit-inner-spin-button, 
         .score-input::-webkit-outer-spin-button {
-            -webkit-appearance: none; /* Entfernt die Pfeile in Chrome/Safari */
+            -webkit-appearance: none; 
             margin: 0;
         }
+        /* Alternierende Reihen im Paper-Theme */
         .category-row:nth-child(even) {
             background-color: #1f2937; /* Grau 800 */
         }
         .category-row:nth-child(odd) {
             background-color: #111827; /* Grau 900 */
         }
+        /* Spezielles Styling für Checkboxen (manuell) */
+        .yatzi-checkbox {
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border: 2px solid #475569; /* Slate 600 */
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+        }
+        /* Aktivierte Checkbox */
+        .yatzi-checkbox:checked {
+            background-color: #06b6d4; /* Cyan 500 */
+            border-color: #06b6d4;
+        }
+        /* Checkmark-Symbol (SVG-Ersatz) */
+        .yatzi-checkbox:checked::after {
+            content: '✓';
+            color: #111827; /* Dunkelgrau */
+            font-weight: bold;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-white min-h-screen md:p-4 flex justify-center items-start">
 
     <div id="score-container" class="w-full max-w-4xl bg-gray-800 p-6 rounded-xl shadow-2xl space-y-6">
-        <h1 class="text-4xl font-extrabold text-center text-cyan-200 mb-6">Yatzi</h1>
-        <p class="text-gray-400 text-center mb-6">Tragen Sie die gewürfelten Punkte direkt in die entsprechenden Felder ein. Die Summen und Boni werden automatisch berechnet.</p>
+        <h1 class="text-4xl font-extrabold text-center text-cyan-200 mb-6">Yatzi Score Sheet</h1>
+        <p class="text-gray-400 text-center mb-6">Tragen Sie die gewürfelten Punkte ein. Feste Werte (Straßen, Yatzi) werden per Klick aktiviert.</p>
 
         <div class="overflow-x-auto rounded-lg shadow-xl">
             <table class="min-w-full text-sm text-left text-gray-400">
                 <thead class="text-xs text-gray-200 uppercase bg-gray-700">
                     <tr>
-                        <th scope="col" class="py-3 px-4 w-40 sticky left-0 bg-gray-700 z-10 rounded-tl-lg">Kategorie</th>
+                        <th scope="col" class="py-3 px-4 w-48 sticky left-0 bg-gray-700 z-10 rounded-tl-lg">Kategorie</th>
                         <th scope="col" class="py-3 px-4 text-center">Spieler 1</th>
                         <th scope="col" class="py-3 px-4 text-center rounded-tr-lg">Spieler 2</th>
                     </tr>
@@ -80,25 +107,29 @@
     </div>
 
     <script>
-        // Definition der Yatzi-Kategorien (ID, Name, Sektion)
+        // Definition der Yatzi-Kategorien (ID, Name, Sektion, Typ, Festwert)
         const categories = [
-            // Oberer Teil
-            { id: 'ones', name: '1er (Einser)', section: 'upper' },
-            { id: 'twos', name: '2er (Zweier)', section: 'upper' },
-            { id: 'threes', name: '3er (Dreier)', section: 'upper' },
-            { id: 'fours', name: '4er (Vierer)', section: 'upper' },
-            { id: 'fives', name: '5er (Fünfer)', section: 'upper' },
-            { id: 'sixes', name: '6er (Sechser)', section: 'upper' },
-            // Trennlinie für den unteren Teil
+            // Oberer Teil (Immer Summe/Numerische Eingabe)
+            { id: 'ones', name: '1er (Einser)', section: 'upper', type: 'sum' },
+            { id: 'twos', name: '2er (Zweier)', section: 'upper', type: 'sum' },
+            { id: 'threes', name: '3er (Dreier)', section: 'upper', type: 'sum' },
+            { id: 'fours', name: '4er (Vierer)', section: 'upper', type: 'sum' },
+            { id: 'fives', name: '5er (Fünfer)', section: 'upper', type: 'sum' },
+            { id: 'sixes', name: '6er (Sechser)', section: 'upper', type: 'sum' },
+            // Trennlinie
             { id: 'separator', name: 'Unterer Teil', section: 'separator' },
             // Unterer Teil
-            { id: 'three_of_a_kind', name: 'Dreierpasch', section: 'lower' },
-            { id: 'four_of_a_kind', name: 'Viererpasch', section: 'lower' },
-            { id: 'full_house', name: 'Full House (25)', section: 'lower' },
-            { id: 'small_straight', name: 'Kleine Straße (30)', section: 'lower' },
-            { id: 'large_straight', name: 'Große Straße (40)', section: 'lower' },
-            { id: 'yatzi', name: 'Yatzi (50)', section: 'lower' },
-            { id: 'chance', name: 'Chance', section: 'lower' },
+            { id: 'three_of_a_kind', name: 'Dreierpasch (Summe)', section: 'lower', type: 'sum' },
+            { id: 'four_of_a_kind', name: 'Viererpasch (Summe)', section: 'lower', type: 'sum' },
+            { id: 'full_house', name: 'Full House (Summe)', section: 'lower', type: 'sum' }, // Zurück zu Summe für Flexibilität, da nicht explizit als Checkbox gewünscht
+            
+            // Feste Punkte (Checkboxen)
+            { id: 'small_straight', name: 'Kleine Straße (30 Pkt.)', section: 'lower', type: 'fixed', fixedValue: 30 },
+            { id: 'large_straight', name: 'Große Straße (40 Pkt.)', section: 'lower', type: 'fixed', fixedValue: 40 },
+            { id: 'yatzi', name: 'Yatzi (50 Pkt.)', section: 'lower', type: 'fixed', fixedValue: 50 },
+
+            // Summe (Numerische Eingabe)
+            { id: 'chance', name: 'Chance (Summe)', section: 'lower', type: 'sum' },
         ];
 
         // Globaler Speicher für die Punkte
@@ -129,10 +160,17 @@
                 // Datenzeile für Kategorien
                 const row = document.createElement('tr');
                 row.classList.add('category-row', 'text-gray-300');
+                
+                // Setze den Hintergrund der Sticky-Zelle auf die entsprechende Zeilenfarbe
+                const rowBgClass = cat.section === 'upper' || cat.type === 'sum' ? 
+                                   (cat.id === 'ones' || cat.id === 'threes' || cat.id === 'fives' ? 'bg-gray-900' : 'bg-gray-800') : 
+                                   'bg-gray-900';
+
+
                 row.innerHTML = `
-                    <td class="py-2 px-4 font-medium sticky left-0 bg-gray-900 z-10">${cat.name}</td>
-                    ${createInputCell(cat.id, 1)}
-                    ${createInputCell(cat.id, 2)}
+                    <td class="py-2 px-4 font-medium sticky left-0 ${rowBgClass} z-10">${cat.name}</td>
+                    ${createInputCell(cat, 1)}
+                    ${createInputCell(cat, 2)}
                 `;
                 scoreBody.appendChild(row);
 
@@ -145,10 +183,30 @@
             calculateAllScores();
         }
 
-        // Erstellt die Tabellenzelle mit dem Eingabefeld
-        function createInputCell(categoryId, playerId) {
-            return `
-                <td class="py-1 px-2 text-center">
+        // Erstellt die Tabellenzelle mit dem Eingabefeld oder der Checkbox
+        function createInputCell(category, playerId) {
+            const isFixed = category.type === 'fixed';
+            const categoryId = category.id;
+            
+            let inputElement;
+            if (isFixed) {
+                // Checkbox für feste Punkte (30, 40, 50)
+                inputElement = `
+                    <label class="flex justify-center items-center h-full py-1">
+                        <input 
+                            type="checkbox" 
+                            id="p${playerId}_${categoryId}"
+                            data-id="${categoryId}" 
+                            data-player="${playerId}"
+                            data-fixed-value="${category.fixedValue}"
+                            onchange="handleInput(this)"
+                            class="yatzi-checkbox"
+                        >
+                    </label>
+                `;
+            } else {
+                // Numerisches Feld für Summen
+                inputElement = `
                     <input 
                         type="number" 
                         inputmode="numeric"
@@ -157,9 +215,15 @@
                         data-id="${categoryId}" 
                         data-player="${playerId}"
                         oninput="handleInput(this)"
-                        class="score-input w-full md:w-20 text-center bg-gray-700 text-white rounded-md p-1 border border-gray-600 focus:border-yellow-500 focus:ring-yellow-500 transition"
+                        class="score-input w-full md:w-20 text-center bg-gray-700 text-white rounded-md p-1 border border-gray-600 focus:border-cyan-500 focus:ring-cyan-500 transition"
                         placeholder="0"
                     >
+                `;
+            }
+
+            return `
+                <td class="py-1 px-2 text-center h-full">
+                    ${inputElement}
                 </td>
             `;
         }
@@ -167,14 +231,19 @@
         // --- Ereignisbehandlung und Berechnung ---
 
         function handleInput(inputElement) {
-            let value = parseInt(inputElement.value) || 0;
             const playerId = inputElement.dataset.player;
             const categoryId = inputElement.dataset.id;
+            let value;
 
-            // Optional: Eingabewert auf maximal mögliche Punkte begrenzen (z.B. max 30 für Einer, max 50 für Yatzi)
-            // Hier verzichten wir auf strenge Validierung, da es ein Score Sheet ist, und vertrauen dem Nutzer.
+            if (inputElement.type === 'checkbox') {
+                const fixedValue = parseInt(inputElement.dataset.fixedValue);
+                value = inputElement.checked ? fixedValue : 0;
+            } else {
+                // Number input
+                value = parseInt(inputElement.value) || 0;
+            }
 
-            // Speichern des validierten Wertes
+            // Speichern des Wertes
             playerScores[playerId][categoryId] = value;
 
             // Neuberechnung
@@ -195,6 +264,8 @@
                 if (cat.section === 'upper') {
                     upperSum += scores[cat.id] || 0;
                 } else if (cat.section === 'lower') {
+                    // Ignoriere den Separator
+                    if (cat.id === 'separator') return;
                     lowerSum += scores[cat.id] || 0;
                 }
             });
@@ -213,18 +284,30 @@
         }
 
         function resetScores() {
+            // HINWEIS: confirm() sollte durch ein benutzerdefiniertes Modal ersetzt werden.
             if (confirm("Sind Sie sicher, dass Sie alle Punkte zurücksetzen und ein neues Spiel starten möchten?")) {
-                // Setze alle gespeicherten Punkte auf 0 zurück
                 categories.forEach(cat => {
                     if (cat.section !== 'separator') {
                          playerScores[1][cat.id] = 0;
                          playerScores[2][cat.id] = 0;
-                        document.getElementById(`p1_${cat.id}`).value = '';
-                        document.getElementById(`p2_${cat.id}`).value = '';
+                         
+                        const p1Input = document.getElementById(`p1_${cat.id}`);
+                        const p2Input = document.getElementById(`p2_${cat.id}`);
+
+                        if (cat.type === 'fixed') {
+                            // Checkbox zurücksetzen
+                            if (p1Input) p1Input.checked = false;
+                            if (p2Input) p2Input.checked = false;
+                        } else {
+                            // Nummerisches Feld zurücksetzen
+                            if (p1Input) p1Input.value = '';
+                            if (p2Input) p2Input.value = '';
+                        }
                     }
                 });
                 
                 calculateAllScores();
+                // HINWEIS: alert() sollte durch eine benutzerdefinierte Nachricht ersetzt werden.
                 alert("Spiel zurückgesetzt. Viel Glück!");
             }
         }
