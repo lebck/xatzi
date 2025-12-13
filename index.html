@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yatzi Score Sheet (Real Life Würfeln)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Spezifische Tailwind-Konfiguration */
+        :root {
+            font-family: 'Inter', sans-serif;
+        }
+        .score-input {
+            appearance: textfield; /* Entfernt die Pfeile in Firefox */
+        }
+        .score-input::-webkit-inner-spin-button, 
+        .score-input::-webkit-outer-spin-button {
+            -webkit-appearance: none; /* Entfernt die Pfeile in Chrome/Safari */
+            margin: 0;
+        }
+        .category-row:nth-child(even) {
+            background-color: #1f2937; /* Grau 800 */
+        }
+        .category-row:nth-child(odd) {
+            background-color: #111827; /* Grau 900 */
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen p-4 flex justify-center items-start">
+
+    <div id="score-container" class="w-full max-w-4xl bg-gray-800 p-6 rounded-xl shadow-2xl space-y-6">
+        <h1 class="text-4xl font-extrabold text-center text-yellow-400 mb-6">📝 Yatzi Score Sheet (2 Spieler)</h1>
+        <p class="text-gray-400 text-center mb-6">Tragen Sie die gewürfelten Punkte direkt in die entsprechenden Felder ein. Die Summen und Boni werden automatisch berechnet.</p>
+
+        <div class="overflow-x-auto rounded-lg shadow-xl">
+            <table class="min-w-full text-sm text-left text-gray-400">
+                <thead class="text-xs text-gray-200 uppercase bg-gray-700">
+                    <tr>
+                        <th scope="col" class="py-3 px-4 w-40 sticky left-0 bg-gray-700 z-10 rounded-tl-lg">Kategorie</th>
+                        <th scope="col" class="py-3 px-4 text-center">Spieler 1</th>
+                        <th scope="col" class="py-3 px-4 text-center rounded-tr-lg">Spieler 2</th>
+                    </tr>
+                </thead>
+                <tbody id="score-body" class="divide-y divide-gray-700">
+                    <!-- Kategorien werden hier mit JS eingefügt -->
+                </tbody>
+                
+                <!-- OBERER TEIL SUMME & BONUS -->
+                <tfoot class="font-semibold text-base bg-gray-700 border-t-4 border-gray-600">
+                    <tr class="text-yellow-400">
+                        <td class="py-2 px-4 sticky left-0 bg-gray-700 z-10">Summe Oben</td>
+                        <td id="p1_upper_sum" class="py-2 px-4 text-center">0</td>
+                        <td id="p2_upper_sum" class="py-2 px-4 text-center">0</td>
+                    </tr>
+                    <tr class="text-green-400">
+                        <td class="py-2 px-4 sticky left-0 bg-gray-700 z-10">Bonus (ab 63 Pkt: +35)</td>
+                        <td id="p1_bonus" class="py-2 px-4 text-center">0</td>
+                        <td id="p2_bonus" class="py-2 px-4 text-center">0</td>
+                    </tr>
+                </tfoot>
+                
+                <!-- UNTERER TEIL ZWISCHENSUMME -->
+                <tfoot class="font-semibold text-base bg-gray-800 border-t border-gray-600">
+                    <tr class="text-purple-400">
+                        <td class="py-2 px-4 sticky left-0 bg-gray-800 z-10">Summe Unten</td>
+                        <td id="p1_lower_sum" class="py-2 px-4 text-center">0</td>
+                        <td id="p2_lower_sum" class="py-2 px-4 text-center">0</td>
+                    </tr>
+                </tfoot>
+
+                <!-- GESAMTSUMME -->
+                <tfoot class="font-extrabold text-xl bg-gray-700 border-t-4 border-yellow-400">
+                    <tr class="text-yellow-300">
+                        <td class="py-4 px-4 sticky left-0 bg-gray-700 z-10 rounded-bl-lg">GESAMTERGEBNIS</td>
+                        <td id="p1_grand_total" class="py-4 px-4 text-center rounded-br-lg">0</td>
+                        <td id="p2_grand_total" class="py-4 px-4 text-center rounded-br-lg">0</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <button onclick="resetScores()" class="mt-8 w-full bg-red-600 hover:bg-red-700 py-3 rounded-lg font-bold transition duration-150">
+            Punkte zurücksetzen / Neues Spiel
+        </button>
+    </div>
+
+    <script>
+        // Definition der Yatzi-Kategorien (ID, Name, Sektion)
+        const categories = [
+            // Oberer Teil
+            { id: 'ones', name: '1er (Einser)', section: 'upper' },
+            { id: 'twos', name: '2er (Zweier)', section: 'upper' },
+            { id: 'threes', name: '3er (Dreier)', section: 'upper' },
+            { id: 'fours', name: '4er (Vierer)', section: 'upper' },
+            { id: 'fives', name: '5er (Fünfer)', section: 'upper' },
+            { id: 'sixes', name: '6er (Sechser)', section: 'upper' },
+            // Trennlinie für den unteren Teil
+            { id: 'separator', name: 'Unterer Teil', section: 'separator' },
+            // Unterer Teil
+            { id: 'three_of_a_kind', name: 'Dreierpasch', section: 'lower' },
+            { id: 'four_of_a_kind', name: 'Viererpasch', section: 'lower' },
+            { id: 'full_house', name: 'Full House (25)', section: 'lower' },
+            { id: 'small_straight', name: 'Kleine Straße (30)', section: 'lower' },
+            { id: 'large_straight', name: 'Große Straße (40)', section: 'lower' },
+            { id: 'yatzi', name: 'Yatzi (50)', section: 'lower' },
+            { id: 'chance', name: 'Chance', section: 'lower' },
+        ];
+
+        // Globaler Speicher für die Punkte
+        let playerScores = {
+            1: {},
+            2: {}
+        };
+
+        // --- Initialisierung und Rendering ---
+
+        function initScoreSheet() {
+            const scoreBody = document.getElementById('score-body');
+            scoreBody.innerHTML = '';
+
+            categories.forEach(cat => {
+                if (cat.section === 'separator') {
+                    // Trennlinie für visuelle Klarheit
+                    const separatorRow = document.createElement('tr');
+                    separatorRow.className = 'bg-gray-700 text-gray-300 font-bold';
+                    separatorRow.innerHTML = `
+                        <td class="py-2 px-4 sticky left-0 bg-gray-700 z-10 border-t border-gray-600">${cat.name}</td>
+                        <td class="py-2 px-4 border-t border-gray-600" colspan="2"></td>
+                    `;
+                    scoreBody.appendChild(separatorRow);
+                    return;
+                }
+
+                // Datenzeile für Kategorien
+                const row = document.createElement('tr');
+                row.classList.add('category-row', 'text-gray-300');
+                row.innerHTML = `
+                    <td class="py-2 px-4 font-medium sticky left-0 bg-gray-900 z-10">${cat.name}</td>
+                    ${createInputCell(cat.id, 1)}
+                    ${createInputCell(cat.id, 2)}
+                `;
+                scoreBody.appendChild(row);
+
+                // Initialisiere den Speicher
+                playerScores[1][cat.id] = 0;
+                playerScores[2][cat.id] = 0;
+            });
+            
+            // Stelle sicher, dass die Berechnung beim Start einmal läuft
+            calculateAllScores();
+        }
+
+        // Erstellt die Tabellenzelle mit dem Eingabefeld
+        function createInputCell(categoryId, playerId) {
+            return `
+                <td class="py-1 px-2 text-center">
+                    <input 
+                        type="number" 
+                        min="0" 
+                        id="p${playerId}_${categoryId}"
+                        data-id="${categoryId}" 
+                        data-player="${playerId}"
+                        oninput="handleInput(this)"
+                        class="score-input w-full md:w-20 text-center bg-gray-700 text-white rounded-md p-1 border border-gray-600 focus:border-yellow-500 focus:ring-yellow-500 transition"
+                        placeholder="0"
+                    >
+                </td>
+            `;
+        }
+
+        // --- Ereignisbehandlung und Berechnung ---
+
+        function handleInput(inputElement) {
+            let value = parseInt(inputElement.value) || 0;
+            const playerId = inputElement.dataset.player;
+            const categoryId = inputElement.dataset.id;
+
+            // Optional: Eingabewert auf maximal mögliche Punkte begrenzen (z.B. max 30 für Einer, max 50 für Yatzi)
+            // Hier verzichten wir auf strenge Validierung, da es ein Score Sheet ist, und vertrauen dem Nutzer.
+
+            // Speichern des validierten Wertes
+            playerScores[playerId][categoryId] = value;
+
+            // Neuberechnung
+            calculateAllScores();
+        }
+
+        function calculateAllScores() {
+            calculatePlayerScore(1);
+            calculatePlayerScore(2);
+        }
+
+        function calculatePlayerScore(playerId) {
+            const scores = playerScores[playerId];
+            let upperSum = 0;
+            let lowerSum = 0;
+
+            categories.forEach(cat => {
+                if (cat.section === 'upper') {
+                    upperSum += scores[cat.id] || 0;
+                } else if (cat.section === 'lower') {
+                    lowerSum += scores[cat.id] || 0;
+                }
+            });
+
+            // Bonus berechnen
+            const bonus = upperSum >= 63 ? 35 : 0;
+            
+            // Gesamtpunkte
+            const grandTotal = upperSum + bonus + lowerSum;
+
+            // UI-Aktualisierung
+            document.getElementById(`p${playerId}_upper_sum`).textContent = upperSum;
+            document.getElementById(`p${playerId}_bonus`).textContent = bonus;
+            document.getElementById(`p${playerId}_lower_sum`).textContent = lowerSum;
+            document.getElementById(`p${playerId}_grand_total`).textContent = grandTotal;
+        }
+
+        function resetScores() {
+            if (confirm("Sind Sie sicher, dass Sie alle Punkte zurücksetzen und ein neues Spiel starten möchten?")) {
+                // Setze alle gespeicherten Punkte auf 0 zurück
+                categories.forEach(cat => {
+                    if (cat.section !== 'separator') {
+                         playerScores[1][cat.id] = 0;
+                         playerScores[2][cat.id] = 0;
+                        document.getElementById(`p1_${cat.id}`).value = '';
+                        document.getElementById(`p2_${cat.id}`).value = '';
+                    }
+                });
+                
+                calculateAllScores();
+                alert("Spiel zurückgesetzt. Viel Glück!");
+            }
+        }
+        
+        // --- Start der Anwendung ---
+        window.onload = initScoreSheet;
+    </script>
+</body>
+</html>
