@@ -27,10 +27,10 @@
         }
     </style>
 </head>
-<body class="bg-gray-900 text-white min-h-screen p-4 flex justify-center items-start">
+<body class="bg-gray-900 text-white min-h-screen md:p-4 flex justify-center items-start">
 
     <div id="score-container" class="w-full max-w-4xl bg-gray-800 p-6 rounded-xl shadow-2xl space-y-6">
-        <h1 class="text-4xl font-extrabold text-center text-yellow-400 mb-6">Yatzi Score Sheet (2 Spieler)</h1>
+        <h1 class="text-4xl font-extrabold text-center text-cyan-200 mb-6">Yatzi Score Sheet (2 Spieler)</h1>
         <p class="text-gray-400 text-center mb-6">Tragen Sie die gewürfelten Punkte direkt in die entsprechenden Felder ein. Die Summen und Boni werden automatisch berechnet.</p>
 
         <div class="overflow-x-auto rounded-lg shadow-xl">
@@ -48,7 +48,7 @@
                 
                 <!-- OBERER TEIL SUMME & BONUS -->
                 <tfoot class="font-semibold text-base bg-gray-700 border-t-4 border-gray-600">
-                    <tr class="text-yellow-400">
+                    <tr class="text-cyan-200">
                         <td class="py-2 px-4 sticky left-0 bg-gray-700 z-10">Summe Oben</td>
                         <td id="p1_upper_sum" class="py-2 px-4 text-center">0</td>
                         <td id="p2_upper_sum" class="py-2 px-4 text-center">0</td>
@@ -62,7 +62,7 @@
                 
                 <!-- UNTERER TEIL ZWISCHENSUMME -->
                 <tfoot class="font-semibold text-base bg-gray-800 border-t border-gray-600">
-                    <tr class="text-purple-400">
+                    <tr class="text-slate-200">
                         <td class="py-2 px-4 sticky left-0 bg-gray-800 z-10">Summe Unten</td>
                         <td id="p1_lower_sum" class="py-2 px-4 text-center">0</td>
                         <td id="p2_lower_sum" class="py-2 px-4 text-center">0</td>
