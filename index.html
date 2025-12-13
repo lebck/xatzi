@@ -1,320 +1,1000 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yatzi</title>
-    <link rel="manifest" href="manifest.json">
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        /* Spezifische Tailwind-Konfiguration */
-        :root {
-            font-family: 'Inter', sans-serif;
-        }
-        /* Versteckt die Pfeile bei nummerischen Eingaben */
-        .score-input {
-            appearance: textfield; 
-        }
-        .score-input::-webkit-inner-spin-button, 
-        .score-input::-webkit-outer-spin-button {
-            -webkit-appearance: none; 
-            margin: 0;
-        }
-        /* Alternierende Reihen im Paper-Theme */
-        .category-row:nth-child(even) {
-            background-color: #1f2937; /* Grau 800 */
-        }
-        .category-row:nth-child(odd) {
-            background-color: #111827; /* Grau 900 */
-        }
-        /* Spezielles Styling für Checkboxen (manuell) */
-        .yatzi-checkbox {
-            appearance: none;
-            width: 24px;
-            height: 24px;
-            border: 2px solid #475569; /* Slate 600 */
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-        }
-        /* Aktivierte Checkbox */
-        .yatzi-checkbox:checked {
-            background-color: #06b6d4; /* Cyan 500 */
-            border-color: #06b6d4;
-        }
-        /* Checkmark-Symbol (SVG-Ersatz) */
-        .yatzi-checkbox:checked::after {
-            content: '✓';
-            color: #111827; /* Dunkelgrau */
-            font-weight: bold;
-            font-size: 16px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="manifest.json">
+  <title>Xatzi</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+      :root {
+          font-family: 'Inter', sans-serif;
+      }
+
+      /* Tabellen Styling */
+      .category-row:nth-child(even) {
+          background-color: #1f2937;
+      }
+
+      .category-row:nth-child(odd) {
+          background-color: #111827;
+      }
+
+      /* --- WÜRFEL CSS --- */
+      .die {
+          width: 52px;
+          height: 52px;
+          background-color: white;
+          border: 4px solid #374151; /* Gray 700 */
+          border-radius: 8px;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3), inset 0 -4px 4px rgba(0, 0, 0, 0.2);
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          grid-template-rows: repeat(3, 1fr);
+          padding: 4px;
+          gap: 2px;
+          cursor: pointer;
+          transition: transform 0.1s, border-color 0.2s;
+          user-select: none;
+      }
+
+      @media (min-width: 768px) {
+          .die {
+              width: 64px;
+              height: 64px;
+              padding: 6px;
+              border-radius: 12px;
+              gap: 3px;
+          }
+      }
+
+      .die:active {
+          transform: scale(0.95);
+      }
+
+      /* Würfel gehalten */
+      .die.held {
+          border: 4px solid #22c55e; /* Green 500 */
+          box-shadow: 0 0 10px #22c55e;
+      }
+
+      /* Würfel rollt (Animation) */
+      .die.rolling {
+          animation: shake 0.5s infinite;
+      }
+
+      @keyframes shake {
+          0% {
+              transform: rotate(0deg);
+          }
+          25% {
+              transform: rotate(5deg);
+          }
+          50% {
+              transform: rotate(0deg);
+          }
+          75% {
+              transform: rotate(-5deg);
+          }
+          100% {
+              transform: rotate(0deg);
+          }
+      }
+
+      /* Punkte auf dem Würfel */
+      .dot {
+          background-color: #111827;
+          border-radius: 50%;
+          align-self: center;
+          justify-self: center;
+          width: 8px;
+          height: 8px;
+          box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.5);
+      }
+
+      @media (min-width: 768px) {
+          .dot {
+              width: 12px;
+              height: 12px;
+          }
+      }
+
+      /* Positionierung der Punkte im 3x3 Grid */
+      /* 1 */
+      .face-1 .dot:nth-child(1) {
+          grid-area: 2 / 2;
+      }
+
+      /* 2 */
+      .face-2 .dot:nth-child(1) {
+          grid-area: 1 / 1;
+      }
+
+      .face-2 .dot:nth-child(2) {
+          grid-area: 3 / 3;
+      }
+
+      /* 3 */
+      .face-3 .dot:nth-child(1) {
+          grid-area: 1 / 1;
+      }
+
+      .face-3 .dot:nth-child(2) {
+          grid-area: 2 / 2;
+      }
+
+      .face-3 .dot:nth-child(3) {
+          grid-area: 3 / 3;
+      }
+
+      /* 4 */
+      .face-4 .dot:nth-child(1) {
+          grid-area: 1 / 1;
+      }
+
+      .face-4 .dot:nth-child(2) {
+          grid-area: 1 / 3;
+      }
+
+      .face-4 .dot:nth-child(3) {
+          grid-area: 3 / 1;
+      }
+
+      .face-4 .dot:nth-child(4) {
+          grid-area: 3 / 3;
+      }
+
+      /* 5 */
+      .face-5 .dot:nth-child(1) {
+          grid-area: 1 / 1;
+      }
+
+      .face-5 .dot:nth-child(2) {
+          grid-area: 1 / 3;
+      }
+
+      .face-5 .dot:nth-child(3) {
+          grid-area: 2 / 2;
+      }
+
+      .face-5 .dot:nth-child(4) {
+          grid-area: 3 / 1;
+      }
+
+      .face-5 .dot:nth-child(5) {
+          grid-area: 3 / 3;
+      }
+
+      /* 6 */
+      .face-6 .dot:nth-child(1) {
+          grid-area: 1 / 1;
+      }
+
+      .face-6 .dot:nth-child(2) {
+          grid-area: 1 / 3;
+      }
+
+      .face-6 .dot:nth-child(3) {
+          grid-area: 2 / 1;
+      }
+
+      .face-6 .dot:nth-child(4) {
+          grid-area: 2 / 3;
+      }
+
+      .face-6 .dot:nth-child(5) {
+          grid-area: 3 / 1;
+      }
+
+      .face-6 .dot:nth-child(6) {
+          grid-area: 3 / 3;
+      }
+
+      /* AI Message Styling */
+      .ai-message-content strong {
+          color: #22d3ee;
+      }
+
+      .ai-message-content ul {
+          list-style-type: disc;
+          margin-left: 1.5rem;
+          margin-top: 0.5rem;
+          margin-bottom: 0.5rem;
+      }
+
+      /* Score Cell Styling */
+      .potential-score {
+          pointer-events: none; /* Allows click on the TD parent */
+      }
+
+      .score-cell-active {
+          border: 2px solid #06b6d4; /* Cyan 500 */
+      }
+  </style>
 </head>
-<body class="bg-gray-900 text-white min-h-screen md:p-4 flex justify-center items-start">
+<body class="bg-gray-900 text-white min-h-screen p-2 md:p-4 flex justify-center items-start">
 
-    <div id="score-container" class="w-full max-w-4xl bg-gray-800 p-6 rounded-xl shadow-2xl space-y-6">
-        <h1 class="text-4xl font-extrabold text-center text-cyan-200 mb-6">Yatzi</h1>
-        <p class="text-gray-400 text-center mb-6">Tragen Sie die gewürfelten Punkte ein. Feste Werte (Straßen, Yatzi) werden per Klick aktiviert.</p>
+<div id="app-container" class="w-full max-w-4xl bg-gray-800 rounded-xl shadow-2xl overflow-hidden flex flex-col hidden">
 
-        <div class="overflow-x-auto rounded-lg shadow-xl">
-            <table class="min-w-full text-sm text-left text-gray-400">
-                <thead class="text-xs text-gray-200 uppercase bg-gray-700">
-                    <tr>
-                        <th scope="col" class="py-3 px-4 w-48 sticky left-0 bg-gray-700 z-10 rounded-tl-lg">Kategorie</th>
-                        <th scope="col" class="py-3 px-4 text-center">Spieler 1</th>
-                        <th scope="col" class="py-3 px-4 text-center rounded-tr-lg">Spieler 2</th>
-                    </tr>
-                </thead>
-                <tbody id="score-body" class="divide-y divide-gray-700">
-                    <!-- Kategorien werden hier mit JS eingefügt -->
-                </tbody>
-                
-                <!-- OBERER TEIL SUMME & BONUS -->
-                <tfoot class="font-semibold text-base bg-gray-700 border-t-4 border-gray-600">
-                    <tr class="text-cyan-200">
-                        <td class="py-2 px-4 sticky left-0 bg-gray-700 z-10">Summe Oben</td>
-                        <td id="p1_upper_sum" class="py-2 px-4 text-center">0</td>
-                        <td id="p2_upper_sum" class="py-2 px-4 text-center">0</td>
-                    </tr>
-                    <tr class="text-green-400">
-                        <td class="py-2 px-4 sticky left-0 bg-gray-700 z-10">Bonus (ab 63 Pkt: +35)</td>
-                        <td id="p1_bonus" class="py-2 px-4 text-center">0</td>
-                        <td id="p2_bonus" class="py-2 px-4 text-center">0</td>
-                    </tr>
-                
-                    <tr class="text-slate-200 font-semibold text-base bg-gray-800 border-t border-gray-600">
-                        <td class="py-2 px-4 sticky left-0 bg-gray-800 z-10">Summe Unten</td>
-                        <td id="p1_lower_sum" class="py-2 px-4 text-center">0</td>
-                        <td id="p2_lower_sum" class="py-2 px-4 text-center">0</td>
-                    </tr>
+  <!-- HEADER / DICE SECTION -->
+  <div class="bg-gray-700 p-6 border-b border-gray-600">
+    <h1 class="text-3xl font-extrabold text-center text-cyan-200 mb-6">Xatzi</h1>
 
-                    <tr class="text-cyan-200 font-extrabold text-xl bg-gray-700 border-t-4 border-cyan-200">
-                        <td class="py-4 px-4 sticky left-0 bg-gray-700 z-10 rounded-bl-lg">GESAMT</td>
-                        <td id="p1_grand_total" class="py-4 px-4 text-center rounded-br-lg">0</td>
-                        <td id="p2_grand_total" class="py-4 px-4 text-center rounded-br-lg">0</td>
-                    </tr>
-                </tfoot>
-            </table>
+    <!-- Würfel Arena -->
+    <div class="bg-gray-800 rounded-xl p-4 shadow-inner mb-4">
+
+      <!-- Turn Indicator -->
+      <div class="text-lg font-bold text-center mb-2" id="current-turn-indicator"></div>
+
+      <div class="flex justify-center gap-3 md:gap-6 mb-4" id="dice-container">
+        <!-- Würfel werden per JS generiert -->
+      </div>
+
+      <div class="flex flex-col items-center gap-2">
+        <div class="text-cyan-400 font-mono font-bold text-lg" id="roll-info">
+          Wurf: 0 / 3
         </div>
 
-        <button onclick="resetScores()" class="mt-8 w-full bg-red-600 hover:bg-red-700 py-3 rounded-lg font-bold transition duration-150">
-            Punkte zurücksetzen / Neues Spiel
-        </button>
+        <!-- Action Buttons -->
+        <div class="flex flex-wrap gap-3 w-full max-w-md justify-center">
+          <button id="btn-roll" onclick="rollDice()"
+                  class="flex-grow bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 px-4 rounded-lg shadow-lg transition transform active:scale-95">
+            Würfeln
+          </button>
+          <!-- Nächste Runde Button ist jetzt nur ein Reset-Fall, da der Wechsel automatisch nach Eintrag erfolgt -->
+          <button id="btn-next-round"
+                  onclick="showModal('Runde überspringen', 'Möchtest du die Runde wirklich überspringen? Der aktuelle Spieler bekommt 0 Punkte für diese Runde, und der nächste Spieler ist an der Reihe.', 'confirm', switchPlayer)"
+                  class="bg-gray-600 hover:bg-gray-500 text-gray-200 font-bold py-3 px-4 rounded-lg shadow-lg transition">
+            Runde überspringen
+          </button>
+        </div>
+
+        <p class="text-xs text-gray-400 mt-2">Klicke Würfel an, um sie zu behalten (grüner Rand).</p>
+      </div>
     </div>
 
-    <script>
-        // Definition der Yatzi-Kategorien (ID, Name, Sektion, Typ, Festwert)
-        const categories = [
-            // Oberer Teil (Immer Summe/Numerische Eingabe)
-            { id: 'ones', name: '1er (Einser)', section: 'upper', type: 'sum' },
-            { id: 'twos', name: '2er (Zweier)', section: 'upper', type: 'sum' },
-            { id: 'threes', name: '3er (Dreier)', section: 'upper', type: 'sum' },
-            { id: 'fours', name: '4er (Vierer)', section: 'upper', type: 'sum' },
-            { id: 'fives', name: '5er (Fünfer)', section: 'upper', type: 'sum' },
-            { id: 'sixes', name: '6er (Sechser)', section: 'upper', type: 'sum' },
-            // Trennlinie
-            { id: 'separator', name: 'Unterer Teil', section: 'separator' },
-            // Unterer Teil
-            { id: 'three_of_a_kind', name: 'Dreierpasch (Summe)', section: 'lower', type: 'sum' },
-            { id: 'four_of_a_kind', name: 'Viererpasch (Summe)', section: 'lower', type: 'sum' },
-            { id: 'full_house', name: 'Full House (Summe)', section: 'lower', type: 'sum' }, // Zurück zu Summe für Flexibilität, da nicht explizit als Checkbox gewünscht
-            
-            // Feste Punkte (Checkboxen)
-            { id: 'small_straight', name: 'Kleine Straße (30 Pkt.)', section: 'lower', type: 'fixed', fixedValue: 30 },
-            { id: 'large_straight', name: 'Große Straße (40 Pkt.)', section: 'lower', type: 'fixed', fixedValue: 40 },
-            { id: 'yatzi', name: 'Yatzi (50 Pkt.)', section: 'lower', type: 'fixed', fixedValue: 50 },
+  </div>
 
-            // Summe (Numerische Eingabe)
-            { id: 'chance', name: 'Chance (Summe)', section: 'lower', type: 'sum' },
-        ];
+  <!-- SCORE SHEET -->
+  <div class="p-2 md:p-6 overflow-x-auto">
+    <p class="text-gray-400 text-center text-sm mb-4">Klicke auf eine freie Zelle des aktuellen Spielers, um die
+      berechnete Punktzahl einzutragen.</p>
+    <table class="min-w-full text-sm text-left text-gray-400">
+      <thead class="text-xs text-gray-200 uppercase bg-gray-700">
+      <tr id="score-header-row">
+        <th scope="col" class="py-3 px-2 md:px-4 w-40 md:w-48 sticky left-0 bg-gray-700 z-10">Kategorie</th>
+        <!-- Spieler-Header werden hier generiert -->
+      </tr>
+      </thead>
+      <tbody id="score-body" class="divide-y divide-gray-700">
+      <!-- JS generiert -->
+      </tbody>
 
-        // Globaler Speicher für die Punkte
-        let playerScores = {
-            1: {},
-            2: {}
-        };
+      <!-- FOOTER TOTALS -->
+      <tfoot class="font-semibold bg-gray-700 border-t-4 border-gray-600">
+      <tr id="total-upper-row" class="text-cyan-200 text-xs md:text-sm">
+        <td class="py-2 px-4 sticky left-0 bg-gray-700 z-10">Summe Oben</td>
+      </tr>
+      <tr id="total-bonus-row" class="text-green-400 text-xs md:text-sm">
+        <td class="py-2 px-4 sticky left-0 bg-gray-700 z-10">Bonus (≥ 63: +35)</td>
+      </tr>
+      <tr id="total-lower-row" class="text-slate-200 bg-gray-800 border-t border-gray-600 text-xs md:text-sm">
+        <td class="py-2 px-4 sticky left-0 bg-gray-800 z-10">Summe Unten</td>
+      </tr>
+      <tr id="total-grand-row"
+          class="text-cyan-200 font-extrabold text-lg md:text-xl bg-gray-700 border-t-4 border-cyan-200">
+        <td class="py-4 px-4 sticky left-0 bg-gray-700 z-10">GESAMT</td>
+      </tr>
+      </tfoot>
+    </table>
 
-        // --- Initialisierung und Rendering ---
+    <button onclick="showModal('Spiel zurücksetzen', 'Möchtest du das Spiel wirklich komplett neu starten und die Spieler neu definieren?', 'confirm', showSetupModal)"
+            class="mt-8 w-full bg-red-900/50 hover:bg-red-800 text-red-200 border border-red-800 py-3 rounded-lg font-bold transition duration-150 text-sm">
+      Spiel komplett zurücksetzen und Spieler neu definieren
+    </button>
+  </div>
+</div>
 
-        function initScoreSheet() {
-            const scoreBody = document.getElementById('score-body');
-            scoreBody.innerHTML = '';
+<!-- Custom Modal Structure -->
+<div id="custom-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 hidden flex items-center justify-center p-4 z-50">
+  <div class="bg-gray-800 rounded-lg p-6 w-full max-w-sm shadow-xl border border-cyan-500/50">
+    <h3 id="modal-title" class="text-xl font-bold text-cyan-200 mb-4"></h3>
+    <p id="modal-content" class="text-gray-300 mb-6"></p>
+    <div class="flex justify-end gap-3">
+      <button id="modal-cancel"
+              class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg transition duration-150 hidden">
+        Abbrechen
+      </button>
+      <button id="modal-confirm"
+              class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 px-4 rounded-lg transition duration-150">OK
+      </button>
+    </div>
+  </div>
+</div>
 
-            categories.forEach(cat => {
-                if (cat.section === 'separator') {
-                    // Trennlinie für visuelle Klarheit
-                    const separatorRow = document.createElement('tr');
-                    separatorRow.className = 'bg-gray-700 text-gray-300 font-bold';
-                    separatorRow.innerHTML = `
-                        <td class="py-2 px-4 sticky left-0 bg-gray-700 z-10 border-t border-gray-600">${cat.name}</td>
-                        <td class="py-2 px-4 border-t border-gray-600" colspan="2"></td>
-                    `;
-                    scoreBody.appendChild(separatorRow);
+<!-- Setup Modal Structure -->
+<div id="setup-modal" class="fixed inset-0 bg-gray-900 bg-opacity-90 flex items-center justify-center p-4 z-50">
+  <div class="bg-gray-800 rounded-lg p-6 w-full max-w-lg shadow-2xl border-2 border-purple-500">
+    <h3 class="text-2xl font-bold text-purple-300 mb-4 text-center">Spieler-Setup</h3>
+    <p class="text-gray-300 mb-6 text-center">Gib die Namen der Spieler ein (mindestens 1, maximal 6).</p>
+
+    <div id="player-input-container" class="space-y-3">
+      <!-- Inputs are generated here -->
+    </div>
+
+    <button id="start-game-btn" onclick="startGame()"
+            class="mt-8 w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 rounded-lg shadow-lg transition transform active:scale-95">
+      Spiel starten!
+    </button>
+    <p id="setup-error" class="text-red-400 text-sm mt-3 hidden text-center">Bitte gib mindestens einen Namen ein.</p>
+  </div>
+</div>
+
+<script>
+    // --- KONFIGURATION ---
+    const categories = [
+        {id: 'ones', name: '1er', section: 'upper'},
+        {id: 'twos', name: '2er', section: 'upper'},
+        {id: 'threes', name: '3er', section: 'upper'},
+        {id: 'fours', name: '4er', section: 'upper'},
+        {id: 'fives', name: '5er', section: 'upper'},
+        {id: 'sixes', name: '6er', section: 'upper'},
+        {id: 'separator', name: 'Unterer Teil', section: 'separator'},
+        {id: 'three_of_a_kind', name: 'Dreierpasch (Summe)', section: 'lower'},
+        {id: 'four_of_a_kind', name: 'Viererpasch (Summe)', section: 'lower'},
+        {id: 'full_house', name: 'Full House (25 Pkt)', section: 'lower'},
+        {id: 'small_straight', name: 'Kl. Straße (30 Pkt)', section: 'lower'},
+        {id: 'large_straight', name: 'Gr. Straße (40 Pkt)', section: 'lower'},
+        {id: 'yatzi', name: 'Yatzi (50 Pkt)', section: 'lower'},
+        {id: 'chance', name: 'Chance (Summe)', section: 'lower'},
+    ];
+
+    // --- GAME STATE WÜRFEL ---
+    let diceValues = [1, 1, 1, 1, 1];
+    let heldDice = [false, false, false, false, false];
+    let rollCount = 0;
+    let isRolling = false;
+
+    // --- GAME STATE DYNAMISCH ---
+    let players = []; // Array of { id: index+1, name: 'Name', scores: { ... } }
+    let currentPlayerIndex = 0; // 0-based index into the players array
+
+    // --- INITIALISIERUNG ---
+    window.onload = function () {
+        const storedPlayerNames = localStorage.getItem('yatziPlayerNames');
+        if (storedPlayerNames) {
+            try {
+                const playerNames = JSON.parse(storedPlayerNames);
+                if (Array.isArray(playerNames) && playerNames.length > 0) {
+                    players = playerNames.map((name, index) => ({
+                        id: index + 1,
+                        name: name,
+                        scores: categories.reduce((acc, cat) => cat.id !== 'separator' ? ({
+                            ...acc,
+                            [cat.id]: 0
+                        }) : acc, {}),
+                        totals: {}
+                    }));
+
+                    document.getElementById('setup-modal').classList.add('hidden');
+                    document.getElementById('app-container').classList.remove('hidden');
+                    currentPlayerIndex = 0;
+                    resetGame(false);
                     return;
                 }
-
-                // Datenzeile für Kategorien
-                const row = document.createElement('tr');
-                row.classList.add('category-row', 'text-gray-300');
-                
-                // Setze den Hintergrund der Sticky-Zelle auf die entsprechende Zeilenfarbe
-                const rowBgClass = cat.section === 'upper' || cat.type === 'sum' ? 
-                                   (cat.id === 'ones' || cat.id === 'threes' || cat.id === 'fives' ? 'bg-gray-900' : 'bg-gray-800') : 
-                                   'bg-gray-900';
-
-
-                row.innerHTML = `
-                    <td class="py-2 px-4 font-medium sticky left-0 ${rowBgClass} z-10">${cat.name}</td>
-                    ${createInputCell(cat, 1)}
-                    ${createInputCell(cat, 2)}
-                `;
-                scoreBody.appendChild(row);
-
-                // Initialisiere den Speicher
-                playerScores[1][cat.id] = 0;
-                playerScores[2][cat.id] = 0;
-            });
-            
-            // Stelle sicher, dass die Berechnung beim Start einmal läuft
-            calculateAllScores();
+            } catch (e) {
+                console.error("Error parsing player names from localStorage", e);
+                localStorage.removeItem('yatziPlayerNames'); // Clear corrupted data
+            }
         }
 
-        // Erstellt die Tabellenzelle mit dem Eingabefeld oder der Checkbox
-        function createInputCell(category, playerId) {
-            const isFixed = category.type === 'fixed';
-            const categoryId = category.id;
-            
-            let inputElement;
-            if (isFixed) {
-                // Checkbox für feste Punkte (30, 40, 50)
-                inputElement = `
-                    <label class="flex justify-center items-center h-full py-1">
-                        <input 
-                            type="checkbox" 
-                            id="p${playerId}_${categoryId}"
-                            data-id="${categoryId}" 
-                            data-player="${playerId}"
-                            data-fixed-value="${category.fixedValue}"
-                            onchange="handleInput(this)"
-                            class="yatzi-checkbox"
-                        >
-                    </label>
+        // Fallback to setup if no valid stored players
+        showSetupModal();
+    };
+
+    function renderPlayerInputs() {
+        const container = document.getElementById('player-input-container');
+        container.innerHTML = '';
+
+        for (let i = 1; i <= 6; i++) {
+            const inputGroup = document.createElement('div');
+            inputGroup.className = 'flex items-center gap-3';
+            inputGroup.innerHTML = `
+                    <label for="player-${i}" class="text-gray-400 font-medium w-20">Spieler ${i}:</label>
+                    <input type="text" id="player-${i}" placeholder="Name (optional)" class="flex-grow bg-gray-700 text-white p-2 rounded-lg border border-gray-600 focus:ring-cyan-500 focus:border-cyan-500">
                 `;
-            } else {
-                // Numerisches Feld für Summen
-                inputElement = `
-                    <input 
-                        type="number" 
-                        inputmode="numeric"
-                        min="0" 
-                        id="p${playerId}_${categoryId}"
-                        data-id="${categoryId}" 
-                        data-player="${playerId}"
-                        oninput="handleInput(this)"
-                        class="score-input w-full md:w-20 text-center bg-gray-700 text-white text-base rounded-md p-1 border border-gray-600 focus:border-cyan-500 focus:ring-cyan-500 transition"
-                        placeholder="0"
-                    >
-                `;
+            container.appendChild(inputGroup);
+        }
+    }
+
+    function showSetupModal() {
+        document.getElementById('app-container').classList.add('hidden');
+        document.getElementById('setup-modal').classList.remove('hidden');
+        renderPlayerInputs();
+        document.getElementById('setup-error').classList.add('hidden');
+    }
+
+    function startGame() {
+        players = [];
+        const playerNames = [];
+        const errorDiv = document.getElementById('setup-error');
+
+        for (let i = 1; i <= 6; i++) {
+            const name = document.getElementById(`player-${i}`).value.trim();
+            if (name) {
+                playerNames.push(name);
+                players.push({
+                    id: i,
+                    name: name,
+                    scores: categories.reduce((acc, cat) => cat.id !== 'separator' ? ({...acc, [cat.id]: 0}) : acc, {}),
+                    totals: {} // Wird bei der Berechnung gefüllt
+                });
+            }
+        }
+
+        if (players.length === 0) {
+            errorDiv.textContent = "Bitte gib mindestens einen Namen ein, um das Spiel zu starten.";
+            errorDiv.classList.remove('hidden');
+            return;
+        }
+
+        localStorage.setItem('yatziPlayerNames', JSON.stringify(playerNames));
+
+        errorDiv.classList.add('hidden');
+        document.getElementById('setup-modal').classList.add('hidden');
+        document.getElementById('app-container').classList.remove('hidden');
+
+        currentPlayerIndex = 0;
+        resetGame(false); // Spiel starten, aber nicht Setup zeigen
+    }
+
+
+    // ---------------- MODAL LOGIK (ersetzt alert/confirm) ----------------
+
+    function showModal(title, content, type = 'alert', callback = () => {
+    }) {
+        const modal = document.getElementById('custom-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalContent = document.getElementById('modal-content');
+        const confirmBtn = document.getElementById('modal-confirm');
+        const cancelBtn = document.getElementById('modal-cancel');
+
+        modalTitle.textContent = title;
+        modalContent.textContent = content;
+
+        // Remove existing listeners
+        confirmBtn.onclick = null;
+        cancelBtn.onclick = null;
+
+        if (type === 'confirm') {
+            cancelBtn.classList.remove('hidden');
+            confirmBtn.textContent = 'Bestätigen';
+            confirmBtn.onclick = () => {
+                modal.classList.add('hidden');
+                callback();
+            };
+            cancelBtn.onclick = () => {
+                modal.classList.add('hidden');
+            };
+        } else { // 'alert'
+            cancelBtn.classList.add('hidden');
+            confirmBtn.textContent = 'OK';
+            confirmBtn.onclick = () => {
+                modal.classList.add('hidden');
+                callback();
+            };
+        }
+
+        modal.classList.remove('hidden');
+    }
+
+
+    // ---------------- WÜRFEL LOGIK ----------------
+
+    function createDieHTML(value, index, isHeld) {
+        const dotCount = value;
+        let dotsHTML = '';
+        for (let i = 0; i < dotCount; i++) {
+            dotsHTML += '<span class="dot"></span>';
+        }
+
+        const heldClass = isHeld ? 'held' : '';
+        return `
+                <div class="die face-${value} ${heldClass}" onclick="toggleHold(${index})">
+                    ${dotsHTML}
+                </div>
+            `;
+    }
+
+    function renderDice() {
+        const container = document.getElementById('dice-container');
+        container.innerHTML = diceValues.map((val, idx) => createDieHTML(val, idx, heldDice[idx])).join('');
+
+        // Buttons und Text aktualisieren
+        const btnRoll = document.getElementById('btn-roll');
+        const infoText = document.getElementById('roll-info');
+
+        infoText.textContent = `Wurf: ${rollCount} / 3`;
+
+        if (rollCount >= 3) {
+            btnRoll.disabled = true;
+            btnRoll.classList.add('opacity-50', 'cursor-not-allowed');
+            btnRoll.classList.remove('hover:bg-cyan-500', 'active:scale-95');
+            infoText.classList.add('text-red-400');
+        } else {
+            btnRoll.disabled = false;
+            btnRoll.classList.remove('opacity-50', 'cursor-not-allowed');
+            btnRoll.classList.add('hover:bg-cyan-500', 'active:scale-95');
+            infoText.classList.remove('text-red-400');
+        }
+
+        renderPotentialScores();
+    }
+
+    function toggleHold(index) {
+        if (rollCount === 0 || isRolling) {
+            showModal("Achtung", "Bitte würfle zuerst, bevor du Würfel festhältst.");
+            return;
+        }
+        heldDice[index] = !heldDice[index];
+        renderDice();
+    }
+
+    function rollDice() {
+        if (rollCount >= 3 || isRolling) return;
+
+        isRolling = true;
+        rollCount++;
+
+        document.getElementById('roll-info').textContent = `Wurf: ${rollCount} / 3`;
+
+        // Kurzfristige Animation (Shake + temporäre Werte)
+        let iterations = 0;
+        const maxIterations = 10;
+        const interval = setInterval(() => {
+            const tempValues = diceValues.map((val, idx) => {
+                if (heldDice[idx]) return val;
+                return Math.floor(Math.random() * 6) + 1;
+            });
+
+            const container = document.getElementById('dice-container');
+            container.innerHTML = tempValues.map((val, idx) => createDieHTML(val, idx, heldDice[idx])).join('');
+
+            iterations++;
+            if (iterations >= maxIterations) {
+                clearInterval(interval);
+                finalizeRoll();
+            }
+        }, 60);
+    }
+
+    function finalizeRoll() {
+        diceValues = diceValues.map((val, idx) => {
+            if (heldDice[idx]) return val;
+            // Finaler Wurf
+            return Math.floor(Math.random() * 6) + 1;
+        });
+        isRolling = false;
+        renderDice();
+    }
+
+    // ---------------- SPIELERWECHSEL / RUNDE ----------------
+
+    function getCurrentPlayer() {
+        return players[currentPlayerIndex];
+    }
+
+    function updatePlayerTurnUI() {
+        const currentPlayer = getCurrentPlayer();
+        const turnIndicator = document.getElementById('current-turn-indicator');
+
+        turnIndicator.innerHTML = `<span class="text-cyan-400">${currentPlayer.name}</span> ist am Zug.`;
+
+        // Highlight current player column by class
+        players.forEach((player, index) => {
+            const header = document.getElementById(`p_header_${index}`);
+            if (header) {
+                header.classList.toggle('score-cell-active', index === currentPlayerIndex);
+            }
+        });
+
+        renderPotentialScores();
+    }
+
+    function switchPlayer() {
+        // Check for game end before switching
+        if (checkGameOver()) return;
+
+        // Nächster Spieler im Zyklus
+        currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+        const nextPlayerName = getCurrentPlayer().name;
+
+        // Runde zurücksetzen
+        rollCount = 0;
+        heldDice = [false, false, false, false, false];
+        diceValues = [1, 1, 1, 1, 1];
+        isRolling = false;
+
+        renderDice();
+        updatePlayerTurnUI();
+
+        // Show a brief alert for turn switch
+        showModal("Spielerwechsel", `${nextPlayerName} ist jetzt am Zug.`, 'alert');
+    }
+
+    // ---------------- SCORE BERECHNUNG ----------------
+
+    function calculateCategoryScore(categoryId, dice) {
+        const counts = {};
+        let sum = 0;
+        for (const d of dice) {
+            counts[d] = (counts[d] || 0) + 1;
+            sum += d;
+        }
+        const values = Object.values(counts);
+        const sortedDice = [...dice].sort((a, b) => a - b);
+
+        switch (categoryId) {
+            // Oberer Teil: Summe der gleichen Würfel
+            case 'ones':
+                return counts[1] * 1 || 0;
+            case 'twos':
+                return counts[2] * 2 || 0;
+            case 'threes':
+                return counts[3] * 3 || 0;
+            case 'fours':
+                return counts[4] * 4 || 0;
+            case 'fives':
+                return counts[5] * 5 || 0;
+            case 'sixes':
+                return counts[6] * 6 || 0;
+
+            // Unterer Teil
+            case 'three_of_a_kind':
+                return values.some(v => v >= 3) ? sum : 0;
+            case 'four_of_a_kind':
+                return values.some(v => v >= 4) ? sum : 0;
+            case 'full_house':
+                return (values.includes(3) && values.includes(2)) ? 25 : 0;
+
+            case 'small_straight':
+                // Suche nach Sequenzen 1-2-3-4, 2-3-4-5, oder 3-4-5-6
+                const uniqueStr = [...new Set(sortedDice)].join('');
+                if (uniqueStr.includes('1234') || uniqueStr.includes('2345') || uniqueStr.includes('3456')) return 30;
+                return 0;
+
+            case 'large_straight':
+                // Suche nach Sequenzen 1-2-3-4-5 oder 2-3-4-5-6
+                if ([...new Set(sortedDice)].length === 5) {
+                    if (sortedDice[0] === 1 && sortedDice[4] === 5) return 40; // 12345
+                    if (sortedDice[0] === 2 && sortedDice[4] === 6) return 40; // 23456
+                }
+                return 0;
+
+            case 'yatzi':
+                return values.includes(5) ? 50 : 0;
+
+            case 'chance':
+                return sum;
+
+            default:
+                return 0;
+        }
+    }
+
+
+    // ---------------- SCOREBOARD LOGIK ----------------
+
+    function initScoreSheet() {
+        const scoreHeaderRow = document.getElementById('score-header-row');
+        const scoreBody = document.getElementById('score-body');
+
+        // 1. Header (dynamisch)
+        scoreHeaderRow.innerHTML = '<th scope="col" class="py-3 px-2 md:px-4 w-40 md:w-48 sticky left-0 bg-gray-700 z-10">Kategorie</th>';
+        players.forEach((player, index) => {
+            scoreHeaderRow.innerHTML += `<th scope="col" class="py-3 px-2 text-center" id="p_header_${index}">${player.name}</th>`;
+        });
+
+
+        // 2. Body (dynamisch)
+        scoreBody.innerHTML = '';
+        categories.forEach(cat => {
+            if (cat.section === 'separator') {
+                const separatorRow = document.createElement('tr');
+                separatorRow.className = 'bg-gray-700 text-gray-300 font-bold text-xs uppercase tracking-wider';
+                separatorRow.innerHTML = `
+                        <td class="py-2 px-4 sticky left-0 bg-gray-700 z-10 border-t border-gray-600">${cat.name}</td>
+                        <td class="py-2 px-4 border-t border-gray-600" colspan="${players.length}"></td>
+                    `;
+                scoreBody.appendChild(separatorRow);
+                return;
             }
 
-            return `
-                <td class="py-1 px-2 text-center h-full">
-                    ${inputElement}
+            const row = document.createElement('tr');
+            row.classList.add('category-row', 'text-gray-300');
+
+            // Hintergrundfarbe für bessere Lesbarkeit
+            const rowBgClass = (cat.id === 'ones' || cat.id === 'threes' || cat.id === 'fives' || cat.id === 'three_of_a_kind' || cat.id === 'full_house' || cat.id === 'large_straight') ? 'bg-gray-900' : 'bg-gray-800';
+
+            let cellsHTML = '';
+            players.forEach((player, playerIndex) => {
+                cellsHTML += createScoreCellHTML(cat, playerIndex);
+            });
+
+            row.innerHTML = `
+                    <td class="py-2 px-2 md:px-4 font-medium sticky left-0 ${rowBgClass} z-10 truncate border-r border-gray-700">${cat.name}</td>
+                    ${cellsHTML}
+                `;
+            scoreBody.appendChild(row);
+        });
+
+        // 3. Footer (dynamisch)
+        updateTotalRows();
+
+        calculateAllScores();
+    }
+
+    function createScoreCellHTML(category, playerIndex) {
+        const player = players[playerIndex];
+        const isScored = player.scores[category.id] > 0;
+        const finalScore = player.scores[category.id];
+
+        let cellClasses = "py-1 px-1 text-center h-full border-r border-gray-700/50 relative";
+        let clickHandler = isScored ? '' : `onclick="handleCategoryClick('${category.id}', ${playerIndex})"`;
+
+        if (isScored) {
+            cellClasses += " bg-gray-900/50 text-gray-500 cursor-not-allowed";
+        } else {
+            cellClasses += " text-gray-600"; // Placeholder color
+        }
+
+        return `
+                <td id="p${playerIndex}_${category.id}_cell"
+                    class="${cellClasses}" ${clickHandler}>
+
+                    <!-- Potenzielle Punktzahl (wird nach dem Würfeln eingeblendet) -->
+                    <div id="p${playerIndex}_${category.id}_potential"
+                         class="potential-score text-cyan-400 text-base font-bold absolute inset-0 flex items-center justify-center bg-cyan-900/70 rounded opacity-0 hidden transition duration-150">
+                         -
+                    </div>
+
+                    <!-- Endgültige/Eingetragene Punktzahl -->
+                    <div id="p${playerIndex}_${category.id}_final"
+                         class="final-score text-base">
+                         ${finalScore > 0 ? finalScore : '-'}
+                    </div>
                 </td>
             `;
-        }
+    }
 
-        // --- Ereignisbehandlung und Berechnung ---
+    function updateTotalRows() {
+        const rows = {
+            'total-upper-row': 'text-cyan-200 text-xs md:text-sm',
+            'total-bonus-row': 'text-green-400 text-xs md:text-sm',
+            'total-lower-row': 'text-slate-200 bg-gray-800 border-t border-gray-600 text-xs md:text-sm',
+            'total-grand-row': 'text-cyan-200 font-extrabold text-lg md:text-xl bg-gray-700 border-t-4 border-cyan-200'
+        };
 
-        function handleInput(inputElement) {
-            const playerId = inputElement.dataset.player;
-            const categoryId = inputElement.dataset.id;
-            let value;
+        const baseCells = {
+            'total-upper-row': '<td class="py-2 px-4 sticky left-0 bg-gray-700 z-10">Summe Oben</td>',
+            'total-bonus-row': '<td class="py-2 px-4 sticky left-0 bg-gray-700 z-10">Bonus (≥ 63: +35)</td>',
+            'total-lower-row': '<td class="py-2 px-4 sticky left-0 bg-gray-800 z-10">Summe Unten</td>',
+            'total-grand-row': '<td class="py-4 px-4 sticky left-0 bg-gray-700 z-10">GESAMT</td>'
+        };
 
-            if (inputElement.type === 'checkbox') {
-                const fixedValue = parseInt(inputElement.dataset.fixedValue);
-                value = inputElement.checked ? fixedValue : 0;
-            } else {
-                // Number input
-                value = parseInt(inputElement.value) || 0;
-            }
+        for (const rowId in rows) {
+            const row = document.getElementById(rowId);
+            let cellsHTML = baseCells[rowId];
 
-            // Speichern des Wertes
-            playerScores[playerId][categoryId] = value;
+            players.forEach((player, index) => {
+                let totalId = '';
+                if (rowId === 'total-upper-row') totalId = 'upper_sum';
+                else if (rowId === 'total-bonus-row') totalId = 'bonus';
+                else if (rowId === 'total-lower-row') totalId = 'lower_sum';
+                else if (rowId === 'total-grand-row') totalId = 'grand_total';
 
-            // Neuberechnung
-            calculateAllScores();
-        }
+                // Ensure player.totals object exists
+                player.totals = player.totals || {};
 
-        function calculateAllScores() {
-            calculatePlayerScore(1);
-            calculatePlayerScore(2);
-        }
-
-        function calculatePlayerScore(playerId) {
-            const scores = playerScores[playerId];
-            let upperSum = 0;
-            let lowerSum = 0;
-
-            categories.forEach(cat => {
-                if (cat.section === 'upper') {
-                    upperSum += scores[cat.id] || 0;
-                } else if (cat.section === 'lower') {
-                    // Ignoriere den Separator
-                    if (cat.id === 'separator') return;
-                    lowerSum += scores[cat.id] || 0;
-                }
+                cellsHTML += `<td id="p${index}_${totalId}" class="py-2 px-2 text-center">${player.totals[totalId] || 0}</td>`;
             });
 
-            // Bonus berechnen
-            const bonus = upperSum >= 63 ? 35 : 0;
-            
-            // Gesamtpunkte
-            const grandTotal = upperSum + bonus + lowerSum;
-
-            // UI-Aktualisierung
-            document.getElementById(`p${playerId}_upper_sum`).textContent = upperSum;
-            document.getElementById(`p${playerId}_bonus`).textContent = bonus;
-            document.getElementById(`p${playerId}_lower_sum`).textContent = lowerSum;
-            document.getElementById(`p${playerId}_grand_total`).textContent = grandTotal;
+            row.innerHTML = cellsHTML;
+            row.className = rows[rowId]; // Reapply classes
         }
+    }
 
-        function resetScores() {
-            // HINWEIS: confirm() sollte durch ein benutzerdefiniertes Modal ersetzt werden.
-            if (confirm("Sind Sie sicher, dass Sie alle Punkte zurücksetzen und ein neues Spiel starten möchten?")) {
-                categories.forEach(cat => {
-                    if (cat.section !== 'separator') {
-                         playerScores[1][cat.id] = 0;
-                         playerScores[2][cat.id] = 0;
-                         
-                        const p1Input = document.getElementById(`p1_${cat.id}`);
-                        const p2Input = document.getElementById(`p2_${cat.id}`);
 
-                        if (cat.type === 'fixed') {
-                            // Checkbox zurücksetzen
-                            if (p1Input) p1Input.checked = false;
-                            if (p2Input) p2Input.checked = false;
-                        } else {
-                            // Nummerisches Feld zurücksetzen
-                            if (p1Input) p1Input.value = '';
-                            if (p2Input) p2Input.value = '';
-                        }
+    function renderPotentialScores() {
+        const currentDice = diceValues;
+        const isRolled = rollCount > 0;
+        const currentPlayer = getCurrentPlayer();
+
+        categories.forEach(cat => {
+            if (cat.section === 'separator') return;
+
+            players.forEach((player, playerIndex) => {
+                const potentialDiv = document.getElementById(`p${playerIndex}_${cat.id}_potential`);
+                const finalDiv = document.getElementById(`p${playerIndex}_${cat.id}_final`);
+                const cell = document.getElementById(`p${playerIndex}_${cat.id}_cell`);
+
+                if (!cell || !potentialDiv || !finalDiv) return;
+
+                const isScored = player.scores[cat.id] > 0;
+                const isCurrentPlayerTurn = (playerIndex === currentPlayerIndex);
+
+                // Nur wenn gewürfelt, nicht eingetragen und am Zug
+                if (isCurrentPlayerTurn && isRolled && !isScored) {
+                    const score = calculateCategoryScore(cat.id, currentDice);
+
+                    potentialDiv.textContent = `→ ${score}`;
+                    potentialDiv.classList.remove('opacity-0', 'hidden');
+                    potentialDiv.classList.add('group-hover:opacity-100');
+
+                    finalDiv.classList.add('opacity-0');
+
+                    // Cell classes for current player to allow click
+                    cell.classList.add('cursor-pointer', 'group', 'hover:bg-cyan-900/50');
+                    cell.classList.remove('cursor-not-allowed', 'bg-gray-900/50');
+
+                } else {
+                    // Hide potential score, show final score
+                    potentialDiv.classList.add('hidden', 'opacity-0');
+                    finalDiv.classList.remove('opacity-0');
+
+                    // Reset cell visual state for non-current player or scored cells
+                    cell.classList.remove('cursor-pointer', 'group', 'hover:bg-cyan-900/50');
+
+                    if (isScored) {
+                        cell.classList.add('cursor-not-allowed', 'bg-gray-900/50');
+                        finalDiv.classList.remove('text-gray-600');
+                    } else {
+                        cell.classList.remove('cursor-not-allowed', 'bg-gray-900/50');
+                        finalDiv.classList.add('text-gray-600');
                     }
-                });
-                
-                calculateAllScores();
-                // HINWEIS: alert() sollte durch eine benutzerdefinierte Nachricht ersetzt werden.
-                alert("Spiel zurückgesetzt. Viel Glück!");
-            }
+                }
+            });
+        });
+    }
+
+    function handleCategoryClick(categoryId, playerIndex) {
+        // 1. Validation
+        if (playerIndex !== currentPlayerIndex) return;
+        if (rollCount === 0) {
+            showModal("Achtung", "Bitte würfle zuerst, um Punkte einzutragen.");
+            return;
         }
-        
-        // --- Start der Anwendung ---
-        window.onload = initScoreSheet;
-    </script>
+        if (players[playerIndex].scores[categoryId] > 0) {
+            return; // Should be prevented by UI anyway
+        }
+
+        // 2. Calculate Score
+        const score = calculateCategoryScore(categoryId, diceValues);
+
+        // 3. Finalize Score and UI
+        players[playerIndex].scores[categoryId] = score;
+
+        // Update the final score display
+        const finalDiv = document.getElementById(`p${playerIndex}_${categoryId}_final`);
+        finalDiv.textContent = score;
+        finalDiv.classList.remove('text-gray-600');
+
+        // 4. Recalculate Totals
+        calculateAllScores();
+
+        // 5. Switch Player / Next Round
+        switchPlayer();
+    }
+
+
+    function calculateAllScores() {
+        players.forEach((_, index) => calculatePlayerScore(index));
+        updateTotalRows();
+    }
+
+    function calculatePlayerScore(playerIndex) {
+        const player = players[playerIndex];
+        const scores = player.scores;
+        let upperSum = 0;
+        let lowerSum = 0;
+
+        categories.forEach(cat => {
+            if (cat.section === 'upper') {
+                upperSum += scores[cat.id] || 0;
+            } else if (cat.section === 'lower' && cat.id !== 'separator') {
+                lowerSum += scores[cat.id] || 0;
+            }
+        });
+
+        const bonus = upperSum >= 63 ? 35 : 0;
+        const grandTotal = upperSum + bonus + lowerSum;
+
+        // Store totals in the player object
+        player.totals = {
+            upper_sum: upperSum,
+            bonus: bonus,
+            lower_sum: lowerSum,
+            grand_total: grandTotal
+        };
+
+        // Update UI elements in the footer
+        setText(`p${playerIndex}_upper_sum`, upperSum);
+        setText(`p${playerIndex}_bonus`, bonus);
+        setText(`p${playerIndex}_lower_sum`, lowerSum);
+        setText(`p${playerIndex}_grand_total`, grandTotal);
+    }
+
+    function setText(id, val) {
+        const element = document.getElementById(id);
+        if (element) {
+            element.textContent = val;
+        }
+    }
+
+    function checkGameOver() {
+        const totalCategories = categories.filter(c => c.id !== 'separator').length;
+
+        const allPlayersFinished = players.every(player => {
+            const scoredCount = Object.values(player.scores).filter(s => s > 0).length;
+            return scoredCount >= totalCategories;
+        });
+
+        if (allPlayersFinished) {
+            // Finde den Gewinner
+            let winner = players[0];
+            let isTie = false;
+
+            for (let i = 1; i < players.length; i++) {
+                if (players[i].totals.grand_total > winner.totals.grand_total) {
+                    winner = players[i];
+                    isTie = false;
+                } else if (players[i].totals.grand_total === winner.totals.grand_total) {
+                    isTie = true;
+                }
+            }
+
+            const finalScores = players.map(p => `${p.name}: ${p.totals.grand_total}`).join(', ');
+
+            let winnerMessage;
+            if (isTie) {
+                const tiedPlayers = players.filter(p => p.totals.grand_total === winner.totals.grand_total).map(p => p.name).join(' und ');
+                winnerMessage = `Unentschieden! ${tiedPlayers} teilen sich den Sieg mit ${winner.totals.grand_total} Punkten.`;
+            } else {
+                winnerMessage = `${winner.name} gewinnt mit ${winner.totals.grand_total} Punkten!`;
+            }
+
+            showModal("Spiel beendet!", `${winnerMessage}\n\nEndergebnisse: ${finalScores}`);
+            document.getElementById('btn-roll').disabled = true;
+            return true;
+        }
+        return false;
+    }
+
+    function resetGame(showSetup = true) {
+        if (showSetup) {
+            showSetupModal();
+            return;
+        }
+
+        // Scores werden in startGame neu initialisiert. Hier nur Runden-Reset
+        currentPlayerIndex = 0;
+        rollCount = 0;
+        heldDice = [false, false, false, false, false];
+        diceValues = [1, 1, 1, 1, 1];
+        isRolling = false;
+
+        document.getElementById('btn-roll').disabled = false;
+
+        // Re-render
+        initScoreSheet(); // Recreates the table headers/rows based on the 'players' array
+        renderDice();
+        updatePlayerTurnUI();
+        calculateAllScores();
+    }
+
+
+</script>
 </body>
 </html>
