@@ -1,0 +1,27 @@
+/**
+ * @typedef {object} Category
+ * @property {string} id - The unique identifier for the category.
+ * @property {string} name - The display name of the category.
+ * @property {'upper' | 'lower' | 'separator'} section - The section of the score sheet the category belongs to.
+ */
+
+/**
+ * The categories for the Yatzi game.
+ * @type {Category[]}
+ */
+export const categories = [
+  { id: "ones", name: "1er", section: "upper" },
+  { id: "twos", name: "2er", section: "upper" },
+  { id: "threes", name: "3er", section: "upper" },
+  { id: "fours", name: "4er", section: "upper" },
+  { id: "fives", name: "5er", section: "upper" },
+  { id: "sixes", name: "6er", section: "upper" },
+  { id: "separator", name: "Unterer Teil", section: "separator" },
+  { id: "three_of_a_kind", name: "Dreierpasch (Summe)", section: "lower" },
+  { id: "four_of_a_kind", name: "Viererpasch (Summe)", section: "lower" },
+  { id: "full_house", name: "Full House (25 Pkt)", section: "lower" },
+  { id: "small_straight", name: "Kl. Straße (30 Pkt)", section: "lower" },
+  { id: "large_straight", name: "Gr. Straße (40 Pkt)", section: "lower" },
+  { id: "yatzi", name: "Yatzi (50 Pkt)", section: "lower" },
+  { id: "chance", name: "Chance (Summe)", section: "lower" },
+];
