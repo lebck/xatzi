@@ -10,8 +10,15 @@ import { html } from "htm/preact";
  * @param {string} [props.class=''] - Additional CSS classes.
  * @returns {import("preact").VNode}
  */
-export function Input({ id, placeholder, value, onInput, class: className = '' }) {
-  const baseClasses = 'bg-gray-700 text-white p-2 rounded-lg border border-gray-600 focus:ring-cyan-500 focus:border-cyan-500';
+export function Input({
+  id,
+  placeholder,
+  value,
+  onInput,
+  class: className = "",
+}) {
+  const baseClasses =
+    "bg-gray-700 text-white p-2 rounded-lg border border-gray-600 focus:ring-cyan-500 focus:border-cyan-500";
   const combinedClasses = `${baseClasses} ${className}`;
 
   return html`
@@ -25,4 +32,3 @@ export function Input({ id, placeholder, value, onInput, class: className = '' }
     />
   `;
 }
-

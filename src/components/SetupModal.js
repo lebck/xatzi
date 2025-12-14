@@ -80,8 +80,10 @@ export function SetupModal({ show, onStartGame }) {
         >
           Spiel starten!
         </${Button}>
-        ${error &&
-        html`<p class="text-red-400 text-sm mt-3 text-center">${error}</p>`}
+        ${
+          error &&
+          html`<p class="text-red-400 text-sm mt-3 text-center">${error}</p>`
+        }
       </div>
     </div>
   `;

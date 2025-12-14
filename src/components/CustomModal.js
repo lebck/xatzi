@@ -12,7 +12,14 @@ import { Modal } from "./ui/Modal.js";
  * @param {boolean} props.show - Whether to show the modal.
  * @returns {import("preact").VNode | null}
  */
-export function CustomModal({ title, content, type, onConfirm, onCancel, show }) {
+export function CustomModal({
+  title,
+  content,
+  type,
+  onConfirm,
+  onCancel,
+  show,
+}) {
   return html`
     <${Modal}
       title=${title}

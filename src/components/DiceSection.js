@@ -34,10 +34,12 @@ export function DiceSection({
       <div class="bg-gray-800 rounded-xl p-4 shadow-inner mb-4">
         <!-- Turn Indicator -->
         <div class="text-lg font-bold text-center mb-2">
-          ${currentPlayerName
-            ? html`<span class="text-cyan-400">${currentPlayerName}</span> ist
-                am Zug.`
-            : ""}
+          ${
+            currentPlayerName
+              ? html`<span class="text-cyan-400">${currentPlayerName}</span> ist
+                  am Zug.`
+              : ""
+          }
         </div>
 
         <div class="flex justify-center gap-3 md:gap-6 mb-4">
@@ -55,9 +57,9 @@ export function DiceSection({
 
         <div class="flex flex-col items-center gap-2">
           <div
-            class="text-cyan-400 font-mono font-bold text-lg ${rollCount >= 3
-              ? "text-red-400"
-              : ""}"
+            class="text-cyan-400 font-mono font-bold text-lg ${
+              rollCount >= 3 ? "text-red-400" : ""
+            }"
           >
             Wurf: ${rollCount} / 3
           </div>

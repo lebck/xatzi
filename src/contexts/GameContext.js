@@ -322,7 +322,7 @@ function useGame() {
       id: index + 1,
       name: name,
       scores: categories.reduce(
-        (acc, cat) => (cat.id === "separator" ? acc : {...acc, [cat.id]: 0}),
+        (acc, cat) => (cat.id === "separator" ? acc : { ...acc, [cat.id]: 0 }),
         {},
       ),
       totals: calculatePlayerTotals({
@@ -330,7 +330,7 @@ function useGame() {
         name: name,
         scores: categories.reduce(
           (acc, cat) =>
-            cat.id === "separator" ? acc : {...acc, [cat.id]: 0},
+            cat.id === "separator" ? acc : { ...acc, [cat.id]: 0 },
           {},
         ),
         totals: {},
@@ -360,8 +360,8 @@ function useGame() {
               scores: categories.reduce(
                 (acc, cat) =>
                   cat.id === "separator"
-                      ? acc
-                      : {
+                    ? acc
+                    : {
                         ...acc,
                         [cat.id]: 0,
                       },

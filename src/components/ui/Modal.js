@@ -25,15 +25,17 @@ export function Modal({ title, children, type, onConfirm, onCancel, show }) {
         <h3 class="text-xl font-bold text-cyan-200 mb-4">${title}</h3>
         <div class="text-gray-300 mb-6">${children}</div>
         <div class="flex justify-end gap-3">
-          ${type === "confirm" &&
-          html`
+          ${
+            type === "confirm" &&
+            html`
             <${Button}
               onClick=${onCancel}
               class="bg-gray-600 text-white"
             >
               Abbrechen
             </${Button}>
-          `}
+          `
+          }
           <${Button}
             onClick=${onConfirm}
             class="bg-cyan-600 text-white"
@@ -45,4 +47,3 @@ export function Modal({ title, children, type, onConfirm, onCancel, show }) {
     </div>
   `;
 }
-

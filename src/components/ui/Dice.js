@@ -11,9 +11,9 @@ import { html } from "htm/preact";
 export function Dice({ value, isHeld, isRolling, onClick }) {
   return html`
     <div
-      class="die face-${value} ${isHeld ? "held" : ""} ${
-        isRolling ? "rolling" : ""
-      }"
+      class="die face-${value} ${isHeld ? "held" : ""} ${isRolling
+        ? "rolling"
+        : ""}"
       onClick=${onClick}
     >
       ${value > 0 &&
@@ -21,4 +21,3 @@ export function Dice({ value, isHeld, isRolling, onClick }) {
     </div>
   `;
 }
-

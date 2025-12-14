@@ -37,7 +37,9 @@ function useModal() {
   const [modalTitle, setModalTitle] = useState("");
   const [modalContent, setModalContent] = useState("");
   const [modalType, setModalType] = useState("alert");
-  const [modalCallback, setModalCallback] = useState(/** @type {Function | null} */ (null));
+  const [modalCallback, setModalCallback] = useState(
+    /** @type {Function | null} */ (null),
+  );
 
   /**
    * Shows the modal with the given title, content, and type.
@@ -113,4 +115,3 @@ export const ModalProvider = ({ children }) => {
  * @returns {{showModal: (title: string, content: string, type?: 'alert' | 'confirm', callback?: Function | null) => void}}
  */
 export const useModalContext = () => useContext(ModalContext);
-
